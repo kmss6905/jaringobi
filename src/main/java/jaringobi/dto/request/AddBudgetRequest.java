@@ -8,6 +8,7 @@ import jaringobi.domain.budget.BudgetYearMonth;
 import jaringobi.domain.budget.CategoryBudget;
 import jaringobi.domain.budget.Money;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -39,6 +40,6 @@ public class AddBudgetRequest {
                         .categoryId(it.getCategoryId())
                         .amount(new Money(it.getMoney()))
                         .build())
-                .toList();
+                .collect(Collectors.toList());
     }
 }
