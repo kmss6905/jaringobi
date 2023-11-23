@@ -7,9 +7,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import jaringobi.controller.request.AddExpenseRequest;
-import jaringobi.controller.request.ModifyExpenseRequest;
-import jaringobi.controller.response.AddExpenseNoResponse;
+import jaringobi.dto.request.AddExpenseRequest;
+import jaringobi.dto.request.ModifyExpenseRequest;
+import jaringobi.dto.response.AddExpenseNoResponse;
 import jaringobi.domain.budget.Money;
 import jaringobi.domain.category.Category;
 import jaringobi.domain.category.CategoryRepository;

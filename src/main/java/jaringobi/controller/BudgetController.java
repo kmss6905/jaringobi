@@ -2,9 +2,8 @@ package jaringobi.controller;
 
 import jakarta.validation.Valid;
 import jaringobi.auth.AuthenticationPrincipal;
-import jaringobi.common.response.ApiResponse;
-import jaringobi.controller.request.AddBudgetRequest;
-import jaringobi.controller.response.AddBudgetResponse;
+import jaringobi.dto.request.AddBudgetRequest;
+import jaringobi.dto.response.AddBudgetResponse;
 import jaringobi.domain.user.AppUser;
 import jaringobi.service.BudgetService;
 import java.net.URI;

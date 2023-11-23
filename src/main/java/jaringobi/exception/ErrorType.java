@@ -7,11 +7,13 @@ import jaringobi.exception.category.CategoryNotFoundException;
 import jaringobi.exception.expense.ExpenseNotFoundException;
 import jaringobi.exception.expense.ExpenseNullArgumentException;
 import jaringobi.exception.expense.ExpenseNullUserException;
+import jaringobi.exception.expense.ExpenseSearchDateNotNullException;
 import jaringobi.exception.user.PasswordNotMatchedException;
 import jaringobi.exception.user.UserNotFoundException;
 import jaringobi.exception.user.UsernameDuplicatedException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
@@ -31,13 +33,15 @@ public enum ErrorType {
     E002("E002", "지출 추가 시 유저 정보는 필수입니다.", ExpenseNullUserException.class, HttpStatus.BAD_REQUEST),
     E003("E003", "존재하지 않는 지출 정보입니다.", ExpenseNotFoundException.class, HttpStatus.NOT_FOUND),
 
-    C001("C001", "존재하지 않는 카테고리 입니다.", CategoryNotFoundException.class, HttpStatus.BAD_REQUEST);
+    C001("C001", "존재하지 않는 카테고리 입니다.", CategoryNotFoundException.class, HttpStatus.BAD_REQUEST),
+
+    S001("S001", "검색 날짜 입력은 필수입니다.", ExpenseSearchDateNotNullException.class, HttpStatus.BAD_REQUEST);
 
     private final String code;
     private final String message;
     private final Class<? extends BudgetGlobalException> classType;
     private final HttpStatus httpStatus;
-    private static final List<ErrorType> errorTypes = Arrays.stream(ErrorType.values()).toList();
+    private static final List<ErrorType> errorTypes = Arrays.stream(ErrorType.values()).collect(Collectors.toList());
 
     public static ErrorType of(Class<? extends BudgetGlobalException> classType) {
         return errorTypes.stream()

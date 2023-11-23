@@ -1,4 +1,4 @@
-package jaringobi.controller.request.validator;
+package jaringobi.dto.request.validator;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;

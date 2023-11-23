@@ -1,7 +1,7 @@
 package jaringobi.service;
 
-import jaringobi.controller.request.LoginRequest;
-import jaringobi.controller.response.LoginResponse;
+import jaringobi.dto.request.LoginRequest;
+import jaringobi.dto.response.LoginResponse;
 import jaringobi.domain.user.User;
 import jaringobi.domain.user.UserRepository;
 import jaringobi.exception.user.UserNotFoundException;

@@ -3,6 +3,7 @@ package jaringobi.controller.request;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import jakarta.validation.ConstraintViolation;
+import jaringobi.dto.request.AddUserRequest;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.DisplayName;

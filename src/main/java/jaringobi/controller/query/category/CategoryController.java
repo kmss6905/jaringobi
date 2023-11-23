@@ -1,8 +1,8 @@
-package jaringobi.controller.category;
+package jaringobi.controller.query.category;
 
 import jaringobi.common.response.ApiResponse;
 import jaringobi.common.response.Payload;
-import jaringobi.controller.category.response.CategoryResponse;
+import jaringobi.controller.query.category.response.CategoryResponse;
 import jaringobi.domain.category.CategoryQuery;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

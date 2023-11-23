@@ -1,6 +1,6 @@
 package jaringobi.service;
 
-import jaringobi.controller.request.AddUserRequest;
+import jaringobi.dto.request.AddUserRequest;
 import jaringobi.domain.user.User;
 import jaringobi.domain.user.UserRepository;
 import jaringobi.exception.user.UsernameDuplicatedException;

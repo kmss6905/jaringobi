@@ -1,8 +1,8 @@
-package jaringobi.controller.request.validator;
+package jaringobi.dto.request.validator;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
-import jaringobi.controller.request.BudgetByCategoryRequest;
+import jaringobi.dto.request.BudgetByCategoryRequest;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;

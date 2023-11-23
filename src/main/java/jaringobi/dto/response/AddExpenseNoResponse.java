@@ -1,4 +1,4 @@
-package jaringobi.controller.response;
+package jaringobi.dto.response;
 
 import jaringobi.domain.expense.Expense;
 

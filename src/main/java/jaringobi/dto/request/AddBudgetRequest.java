@@ -1,13 +1,14 @@
-package jaringobi.controller.request;
+package jaringobi.dto.request;
 
 import jakarta.validation.Valid;
-import jaringobi.controller.request.validator.NotDuplicated;
-import jaringobi.controller.request.validator.YearMonthPattern;
+import jaringobi.dto.request.validator.NotDuplicated;
+import jaringobi.dto.request.validator.YearMonthPattern;
 import jaringobi.domain.budget.Budget;
 import jaringobi.domain.budget.BudgetYearMonth;
 import jaringobi.domain.budget.CategoryBudget;
 import jaringobi.domain.budget.Money;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -39,6 +40,6 @@ public class AddBudgetRequest {
                         .categoryId(it.getCategoryId())
                         .amount(new Money(it.getMoney()))
                         .build())
-                .toList();
+                .collect(Collectors.toList());
     }
 }

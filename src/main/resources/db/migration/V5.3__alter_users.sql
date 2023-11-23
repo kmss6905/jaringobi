@@ -1,0 +1,1 @@
+alter table users modify column deleted_at datetime null;

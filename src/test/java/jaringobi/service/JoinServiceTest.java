@@ -7,7 +7,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import jaringobi.controller.request.AddUserRequest;
+import jaringobi.dto.request.AddUserRequest;
 import jaringobi.domain.user.User;
 import jaringobi.domain.user.UserRepository;
 import jaringobi.exception.user.UsernameDuplicatedException;
