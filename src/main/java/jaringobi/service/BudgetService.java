@@ -1,7 +1,7 @@
 package jaringobi.service;
 
-import jaringobi.controller.request.AddBudgetRequest;
-import jaringobi.controller.response.AddBudgetResponse;
+import jaringobi.dto.request.AddBudgetRequest;
+import jaringobi.dto.response.AddBudgetResponse;
 import jaringobi.domain.budget.Budget;
 import jaringobi.domain.budget.BudgetRepository;
 import jaringobi.domain.budget.CategoryBudget;

@@ -6,8 +6,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import jaringobi.controller.request.LoginRequest;
-import jaringobi.controller.response.LoginResponse;
+import jaringobi.dto.request.LoginRequest;
+import jaringobi.dto.response.LoginResponse;
 import jaringobi.domain.user.User;
 import jaringobi.domain.user.UserRepository;
 import jaringobi.exception.user.UserNotFoundException;

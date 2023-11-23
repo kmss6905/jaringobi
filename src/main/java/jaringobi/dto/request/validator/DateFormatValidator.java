@@ -4,13 +4,10 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import java.util.regex.Pattern;
 
-public class YearMonthValidator implements ConstraintValidator<YearMonthPattern, String> {
+public class DateFormatValidator implements ConstraintValidator<DateFormat, String> {
 
-    private static final String PATTERN = "^(\\d{4})-(0[1-9]|1[0-2])$";
-
-    @Override
-    public void initialize(YearMonthPattern constraintAnnotation) {
-    }
+    // yyyy-MM-dd
+    private static final String PATTERN = "^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$";
 
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {

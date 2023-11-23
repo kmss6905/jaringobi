@@ -1,4 +1,4 @@
-package jaringobi.controller.request;
+package jaringobi.dto.request;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;

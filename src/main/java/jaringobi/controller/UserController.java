@@ -2,9 +2,9 @@ package jaringobi.controller;
 
 import jakarta.validation.Valid;
 import jaringobi.common.response.ApiResponse;
-import jaringobi.controller.request.AddUserRequest;
-import jaringobi.controller.request.LoginRequest;
-import jaringobi.controller.response.LoginResponse;
+import jaringobi.dto.request.AddUserRequest;
+import jaringobi.dto.request.LoginRequest;
+import jaringobi.dto.response.LoginResponse;
 import jaringobi.service.JoinService;
 import jaringobi.service.LoginService;
 import lombok.RequiredArgsConstructor;

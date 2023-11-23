@@ -1,8 +1,8 @@
-package jaringobi.controller.request;
+package jaringobi.dto.request;
 
 import jakarta.validation.Valid;
-import jaringobi.controller.request.validator.NotDuplicated;
-import jaringobi.controller.request.validator.YearMonthPattern;
+import jaringobi.dto.request.validator.NotDuplicated;
+import jaringobi.dto.request.validator.YearMonthPattern;
 import jaringobi.domain.budget.Budget;
 import jaringobi.domain.budget.BudgetYearMonth;
 import jaringobi.domain.budget.CategoryBudget;

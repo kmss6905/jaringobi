@@ -4,10 +4,13 @@ import jaringobi.auth.AuthenticationInterceptor;
 import jaringobi.auth.AuthenticationPrincipalArgumentResolver;
 import jaringobi.auth.AuthenticationService;
 import jaringobi.auth.AuthenticationTokenService;
+import jaringobi.controller.search.OrderRequestConverter;
+import jaringobi.controller.search.SortRequestConverter;
 import jaringobi.jwt.TokenProvider;
 import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.format.FormatterRegistry;
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
@@ -53,5 +56,11 @@ public class SecurityConfig implements WebMvcConfigurer {
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
         resolvers.add(authenticationPrincipalArgumentResolver());
+    }
+
+    @Override
+    public void addFormatters(FormatterRegistry registry) {
+        registry.addConverter(new SortRequestConverter());
+        registry.addConverter(new OrderRequestConverter());
     }
 }

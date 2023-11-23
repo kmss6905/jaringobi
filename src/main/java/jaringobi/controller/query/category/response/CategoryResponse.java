@@ -1,4 +1,4 @@
-package jaringobi.controller.category.response;
+package jaringobi.controller.query.category.response;
 
 import jaringobi.domain.category.Category;
 
