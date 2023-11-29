@@ -2,9 +2,12 @@ package jaringobi.acceptance.budget;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 import io.restassured.path.json.JsonPath;
 import jaringobi.acceptance.APITest;
+import jaringobi.dto.response.BudgetByCategoryResponse;
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -170,24 +173,86 @@ public class BudgetAPITest extends APITest {
             assertThat(jsonPath.getString("message")).isEqualTo("해당 작업을 수행할 권한이 없습니다.");
         }
 
-        private void saveBudget() {
-            String body = """
-                    {
-                        "budgetByCategories" : [
-                            {
-                                "categoryId": 1,
-                                "money": 1
-                            },
-                            {
-                                "categoryId": 2,
-                                "money": 9000
-                            }
-                        ],
-                        "month": "2023-10"
-                    }
-                    """;
-            BudgetAPI.예산설정(body, accessToken);
+    }
+
+    @Nested
+    @DisplayName("[예산 조회] /api/v1/budget/{id}")
+    class BudgetFetch {
+
+        @Test
+        @DisplayName("성공 200")
+        void successFetchBudget() {
+            // Given
+            saveBudget();
+
+            // When
+            var response = BudgetAPI.예산조회요청(1L, accessToken);
+            var jsonPath = response.jsonPath();
+
+            // Then
+            assertThat(response.response().statusCode()).isEqualTo(200);
+            assertThat(jsonPath.getString("code")).isEqualTo("200");
+            assertThat(jsonPath.getString("data.month")).isEqualTo("2023-10-01");
+            assertThat(jsonPath.getString("data.createdAt")).isNotEmpty();
+            assertThat(jsonPath.getString("data.updatedAt")).isNotEmpty();
+
+            List<BudgetByCategoryResponse> budgetByCategoryResponses = jsonPath.getList("data.budgetByCategories",
+                    BudgetByCategoryResponse.class);
+            assertAll(
+                    () -> assertThat(budgetByCategoryResponses).extracting("id").isNotEmpty(),
+                    () -> assertThat(budgetByCategoryResponses).extracting("createdAt").isNotEmpty(),
+                    () -> assertThat(budgetByCategoryResponses).extracting("updatedAt").isNotEmpty(),
+                    () -> assertThat(budgetByCategoryResponses).hasSize(2),
+                    () -> assertThat(budgetByCategoryResponses).extracting("categoryId").containsExactly(1L, 2L),
+                    () -> assertThat(budgetByCategoryResponses).extracting("money").containsExactly(1, 9000)
+            );
         }
 
+        @Test
+        @DisplayName("실패 404 - 존재하지 않는 예산 정보 조회")
+        void failNotExistedBudget() {
+            // When
+            var response = BudgetAPI.예산조회요청(1L, accessToken);
+            var jsonPath = response.jsonPath();
+
+            // Then
+            assertThat(response.response().statusCode()).isEqualTo(404);
+            assertThat(jsonPath.getString("code")).isEqualTo("B003");
+            assertThat(jsonPath.getString("message")).isEqualTo("존재하지 않는 예산입니다.");
+        }
+
+        @Test
+        @DisplayName("실패 403 - 권한 없는 유저 요청")
+        void failNoPermission() {
+            saveBudget();
+
+            // When
+            var response = BudgetAPI.예산조회요청(1, anotherUserAccessToken);
+            JsonPath jsonPath = response.jsonPath();
+
+            // Then
+            assertThat(response.response().statusCode()).isEqualTo(403);
+            assertThat(jsonPath.getString("code")).isEqualTo("AUTH_03");
+            assertThat(jsonPath.getString("message")).isEqualTo("해당 작업을 수행할 권한이 없습니다.");
+        }
+    }
+
+    private void saveBudget() {
+        String body = """
+                {
+                    "budgetByCategories" : [
+                        {
+                            "categoryId": 1,
+                            "money": 1
+                        },
+                        {
+                            "categoryId": 2,
+                            "money": 9000
+                        }
+                    ],
+                    "month": "2023-10"
+                }
+                """;
+        BudgetAPI.예산설정(body, accessToken);
     }
 }
