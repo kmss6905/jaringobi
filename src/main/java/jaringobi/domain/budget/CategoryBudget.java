@@ -58,4 +58,16 @@ public class CategoryBudget extends BaseTimeEntity {
                 .budget(budget)
                 .build();
     }
+
+    public Long getId() {
+        return id;
+    }
+
+    public Money getAmount() {
+        return amount;
+    }
+
+    public Long getCategoryId() {
+        return categoryId;
+    }
 }
