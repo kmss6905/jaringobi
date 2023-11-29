@@ -124,4 +124,70 @@ public class BudgetAPITest extends APITest {
 
 
     }
+
+    @Nested
+    @DisplayName("[예산 삭제] /api/v1/budget/{id}")
+    class BudgetDelete {
+
+        @Test
+        @DisplayName("성공 204")
+        void successDeleteBudget() {
+            // Given
+            saveBudget();
+
+            // When
+            var response = BudgetAPI.예산삭제요청(1, accessToken);
+
+            // Then
+            assertThat(response.response().statusCode()).isEqualTo(204);
+        }
+
+        @Test
+        @DisplayName("실패 404 - 존재하지 않는 예산 정보")
+        void failNotExistedBudget() {
+            // When
+            var response = BudgetAPI.예산삭제요청(1, accessToken);
+            JsonPath jsonPath = response.jsonPath();
+
+            // Then
+            assertThat(response.response().statusCode()).isEqualTo(404);
+            assertThat(jsonPath.getString("code")).isEqualTo("B003");
+            assertThat(jsonPath.getString("message")).isEqualTo("존재하지 않는 예산입니다.");
+        }
+
+        @Test
+        @DisplayName("실패 403 - 권한 없는 유저 요청")
+        void failNoPermission() {
+            saveBudget();
+
+            // When
+            var response = BudgetAPI.예산삭제요청(1, anotherUserAccessToken);
+            JsonPath jsonPath = response.jsonPath();
+
+            // Then
+            assertThat(response.response().statusCode()).isEqualTo(403);
+            assertThat(jsonPath.getString("code")).isEqualTo("AUTH_03");
+            assertThat(jsonPath.getString("message")).isEqualTo("해당 작업을 수행할 권한이 없습니다.");
+        }
+
+        private void saveBudget() {
+            String body = """
+                    {
+                        "budgetByCategories" : [
+                            {
+                                "categoryId": 1,
+                                "money": 1
+                            },
+                            {
+                                "categoryId": 2,
+                                "money": 9000
+                            }
+                        ],
+                        "month": "2023-10"
+                    }
+                    """;
+            BudgetAPI.예산설정(body, accessToken);
+        }
+
+    }
 }

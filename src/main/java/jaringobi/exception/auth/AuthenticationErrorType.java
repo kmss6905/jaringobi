@@ -2,6 +2,7 @@ package jaringobi.exception.auth;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -18,7 +19,8 @@ public enum AuthenticationErrorType {
     private final String code;
     private final String message;
     private final Class<? extends AuthenticationException> classType;
-    private static final List<AuthenticationErrorType> errorTypes = Arrays.stream(AuthenticationErrorType.values()).toList();
+    private static final List<AuthenticationErrorType> errorTypes = Arrays.stream(AuthenticationErrorType.values()).collect(
+            Collectors.toList());
 
     public static AuthenticationErrorType of(Class<? extends AuthenticationException> classType) {
         return errorTypes.stream()
