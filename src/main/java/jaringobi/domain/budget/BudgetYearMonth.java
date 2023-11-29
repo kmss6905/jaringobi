@@ -42,4 +42,8 @@ public class BudgetYearMonth {
     public boolean isEmptyMonth() {
         return Objects.isNull(this.month);
     }
+
+    public LocalDate getMonth() {
+        return month;
+    }
 }

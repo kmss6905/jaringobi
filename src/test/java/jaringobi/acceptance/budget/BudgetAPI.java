@@ -33,4 +33,15 @@ public class BudgetAPI {
                 .log().all().extract();
     }
 
+    public static ExtractableResponse<Response> 예산조회요청(long id, String token) {
+        return RestAssured.given().log().all()
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .when()
+                .header(AUTHORIZATION, BEARER + token)
+                .get("/api/v1/budget/{id}", id)
+                .andReturn()
+                .then()
+                .log().all().extract();
+    }
+
 }
