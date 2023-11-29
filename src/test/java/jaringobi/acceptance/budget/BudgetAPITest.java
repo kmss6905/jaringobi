@@ -237,6 +237,75 @@ public class BudgetAPITest extends APITest {
         }
     }
 
+    @Nested
+    @DisplayName("[예산 카테고리 추가] /api/v1/budget/{id}/category")
+    class BudgetCategoryAdd {
+
+        @Test
+        @DisplayName("성공 200")
+        void successFetchBudget() {
+            // Given
+            saveBudget();
+
+            String body = """
+                            {
+                                "categoryId": 10,
+                                "money": 10000
+                            }
+                    """;
+
+            // When
+            var response = BudgetAPI.예산카테고리추가요청(body, 1L, accessToken);
+
+            // Then
+            assertThat(response.response().statusCode()).isEqualTo(201);
+
+            // Then
+            var response2 = BudgetAPI.예산조회요청(1L, accessToken);
+            var jsonPath = response2.jsonPath();
+
+            assertThat(jsonPath.getString("code")).isEqualTo("200");
+            assertThat(jsonPath.getString("data.month")).isEqualTo("2023-10-01");
+            assertThat(jsonPath.getString("data.createdAt")).isNotEmpty();
+            assertThat(jsonPath.getString("data.updatedAt")).isNotEmpty();
+
+            List<BudgetByCategoryResponse> budgetByCategoryResponses = jsonPath.getList("data.budgetByCategories",
+                    BudgetByCategoryResponse.class);
+            assertAll(
+                    () -> assertThat(budgetByCategoryResponses).extracting("id").isNotEmpty(),
+                    () -> assertThat(budgetByCategoryResponses).extracting("createdAt").isNotEmpty(),
+                    () -> assertThat(budgetByCategoryResponses).extracting("updatedAt").isNotEmpty(),
+                    () -> assertThat(budgetByCategoryResponses).hasSize(3),
+                    () -> assertThat(budgetByCategoryResponses).extracting("categoryId").containsExactly(1L, 2L, 10L),
+                    () -> assertThat(budgetByCategoryResponses).extracting("money").containsExactly(1, 9000, 10000)
+            );
+
+        }
+
+        @Test
+        @DisplayName("실패 400 - 중복된 카테고리 추가 시 예외를 던진다.")
+        void failDuplicatedCategory() {
+            // Given
+            saveBudget();
+
+            String body = """
+                            {
+                                "categoryId": 1,
+                                "money": 1000
+                            }
+                    """;
+
+            // When
+            var response = BudgetAPI.예산카테고리추가요청(body, 1L, accessToken);
+            JsonPath jsonPath = response.jsonPath();
+
+            // Then
+            assertThat(response.response().statusCode()).isEqualTo(409);
+            assertThat(jsonPath.getString("code")).isEqualTo("B004");
+            assertThat(jsonPath.getString("message")).isEqualTo("해당 카테고리로 예산 항목이 이미 존재합니다. 중복 카테고리 등록 불가");
+        }
+    }
+
     private void saveBudget() {
         String body = """
                 {

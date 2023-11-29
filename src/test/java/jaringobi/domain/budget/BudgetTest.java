@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import jaringobi.domain.user.AppUser;
 import jaringobi.domain.user.User;
+import jaringobi.exception.budget.BudgetCategoryDuplicatedException;
 import jaringobi.exception.budget.InvalidBudgetException;
 import jaringobi.exception.budget.LowBudgetException;
 import java.util.List;
@@ -168,5 +169,64 @@ class BudgetTest {
         // When, Then
         assertThat(budget.isOwner(appUser)).isTrue();
         assertThat(budget.isOwner(appUser2)).isFalse();
+    }
+
+    @Test
+    @DisplayName("예산 추가 ")
+    void addBudgetCategory() {
+        Budget budget = Budget.builder()
+                .yearMonth(BudgetYearMonth.fromString("2023-10"))
+                .user(User.builder()
+                        .username("username")
+                        .password("password")
+                        .build())
+                .categoryBudgets(List.of(
+                        CategoryBudget.builder()
+                                .amount(new Money(1000))
+                                .categoryId(1L)
+                                .build()))
+                .build();
+
+        CategoryBudget newCategoryBudget = CategoryBudget.builder()
+                .amount(new Money(2000))
+                .categoryId(2L)
+                .build();
+
+        // When
+        budget.addBudgetCategory(newCategoryBudget);
+
+        assertThat(budget.getCategoryBudgets()).hasSize(2);
+        assertThat(budget.getCategoryBudgets()).extracting("categoryId").containsExactly(1L, 2L);
+        assertThat(budget.getCategoryBudgets())
+                .extracting(CategoryBudget::getAmount)
+                .extracting(Money::getAmount)
+                .containsExactly(1000, 2000);
+    }
+
+    @Test
+    @DisplayName("예산 추가 시 중복 된 카테고리를 추가하는 경우 예외 던진다.")
+    void throwExceptionWhenDuplicatedCatefory() {
+        // Given
+        Budget budget = Budget.builder()
+                .yearMonth(BudgetYearMonth.fromString("2023-10"))
+                .user(User.builder()
+                        .username("username")
+                        .password("password")
+                        .build())
+                .categoryBudgets(List.of(
+                        CategoryBudget.builder()
+                                .amount(new Money(1000))
+                                .categoryId(1L)
+                                .build()))
+                .build();
+
+        CategoryBudget newCategoryBudget = CategoryBudget.builder()
+                .amount(new Money(2000))
+                .categoryId(1L)
+                .build();
+
+        // When, Then
+        assertThatThrownBy(() -> budget.addBudgetCategory(newCategoryBudget))
+                .isInstanceOf(BudgetCategoryDuplicatedException.class);
     }
 }

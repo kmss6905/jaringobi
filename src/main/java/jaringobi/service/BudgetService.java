@@ -1,13 +1,14 @@
 package jaringobi.service;
 
-import jaringobi.dto.request.AddBudgetRequest;
-import jaringobi.dto.response.AddBudgetResponse;
 import jaringobi.domain.budget.Budget;
 import jaringobi.domain.budget.BudgetRepository;
 import jaringobi.domain.budget.CategoryBudget;
 import jaringobi.domain.user.AppUser;
 import jaringobi.domain.user.User;
 import jaringobi.domain.user.UserRepository;
+import jaringobi.dto.request.AddBudgetRequest;
+import jaringobi.dto.request.BudgetByCategoryRequest;
+import jaringobi.dto.response.AddBudgetResponse;
 import jaringobi.dto.response.BudgetResponse;
 import jaringobi.exception.auth.NoPermissionException;
 import jaringobi.exception.budget.BudgetNotFoundException;
@@ -45,6 +46,12 @@ public class BudgetService {
     public BudgetResponse findOneBudget(AppUser appUser, long budgetId) {
         Budget budget = findBudgetOwnerOf(appUser, budgetId);
         return BudgetResponse.of(budget);
+    }
+
+    @Transactional
+    public void addBudgetCategory(AppUser appUser, long budgetId, BudgetByCategoryRequest budgetByCategoryRequest) {
+        Budget budget = findBudgetOwnerOf(appUser, budgetId);
+        budget.addBudgetCategory(budgetByCategoryRequest.toCategoryBudget());
     }
 
     private Budget findBudgetOwnerOf(AppUser appUser, long budgetId) {

@@ -15,6 +15,7 @@ import jakarta.persistence.Table;
 import jaringobi.domain.BaseTimeEntity;
 import jaringobi.domain.user.AppUser;
 import jaringobi.domain.user.User;
+import jaringobi.exception.budget.BudgetCategoryDuplicatedException;
 import jaringobi.exception.budget.InvalidBudgetException;
 import java.util.ArrayList;
 import java.util.List;
@@ -97,5 +98,18 @@ public class Budget extends BaseTimeEntity {
 
     public boolean isOwner(AppUser appUser) {
         return this.user.isSame(appUser);
+    }
+
+    public void addBudgetCategory(CategoryBudget categoryBudget) {
+        verifyNotDuplicatedCategory(categoryBudget);
+        categoryBudgets.add(CategoryBudget.withBudget(this, categoryBudget));
+    }
+
+    private void verifyNotDuplicatedCategory(CategoryBudget categoryBudget) {
+        boolean existed = categoryBudgets.stream()
+                .anyMatch(it -> it.getCategoryId().equals(categoryBudget.getCategoryId()));
+        if (existed) {
+            throw new BudgetCategoryDuplicatedException();
+        }
     }
 }

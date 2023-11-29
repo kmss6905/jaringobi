@@ -1,6 +1,7 @@
 package jaringobi.exception;
 
 
+import jaringobi.exception.budget.BudgetCategoryDuplicatedException;
 import jaringobi.exception.budget.BudgetNotFoundException;
 import jaringobi.exception.budget.InvalidBudgetException;
 import jaringobi.exception.budget.LowBudgetException;
@@ -30,6 +31,7 @@ public enum ErrorType {
     B001("B001", "올바르지 않은 예산 정보입니다.", InvalidBudgetException.class, HttpStatus.BAD_REQUEST),
     B002("B002", "지정 예산은 0원을 넘을 수 없습니다.", LowBudgetException.class, HttpStatus.BAD_REQUEST),
     B003("B003", "존재하지 않는 예산입니다.", BudgetNotFoundException.class, HttpStatus.NOT_FOUND),
+    B004("B004", "해당 카테고리로 예산 항목이 이미 존재합니다. 중복 카테고리 등록 불가", BudgetCategoryDuplicatedException.class, HttpStatus.CONFLICT),
 
     E001("E001", "필수 지출 정보를 입력바랍니다. 정보 생성 시 (지출 금액, 지출 일, 지출 카테고리)", ExpenseNullArgumentException.class, HttpStatus.BAD_REQUEST),
     E002("E002", "지출 추가 시 유저 정보는 필수입니다.", ExpenseNullUserException.class, HttpStatus.BAD_REQUEST),
