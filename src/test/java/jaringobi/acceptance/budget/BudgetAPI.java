@@ -44,4 +44,15 @@ public class BudgetAPI {
                 .log().all().extract();
     }
 
+    public static ExtractableResponse<Response> 예산카테고리추가요청(String body, long id, String token) {
+        return RestAssured.given().log().all()
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .when()
+                .header(AUTHORIZATION, BEARER + token)
+                .body(body)
+                .post("/api/v1/budget/{id}/categories", id)
+                .andReturn()
+                .then()
+                .log().all().extract();
+    }
 }
