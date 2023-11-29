@@ -8,6 +8,8 @@ import jaringobi.domain.budget.CategoryBudget;
 import jaringobi.domain.user.AppUser;
 import jaringobi.domain.user.User;
 import jaringobi.domain.user.UserRepository;
+import jaringobi.exception.auth.NoPermissionException;
+import jaringobi.exception.budget.BudgetNotFoundException;
 import jaringobi.exception.user.UserNotFoundException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +32,21 @@ public class BudgetService {
         budget.setCategoryBudgets(categoryBudgets);
         Budget savedBudget = budgetRepository.save(budget);
         return AddBudgetResponse.of(savedBudget);
+    }
+
+    @Transactional
+    public void deleteBudget(AppUser appUser, long budgetId) {
+        Budget budget = findBudgetOwnerOf(appUser, budgetId);
+        budgetRepository.delete(budget);
+    }
+
+    private Budget findBudgetOwnerOf(AppUser appUser, long budgetId) {
+        Budget budget = budgetRepository.findById(budgetId)
+                .orElseThrow(BudgetNotFoundException::new);
+        if (!budget.isOwner(appUser)) {
+            throw new NoPermissionException();
+        }
+        return budget;
     }
 
 
