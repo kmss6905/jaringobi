@@ -13,11 +13,13 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jaringobi.domain.BaseTimeEntity;
+import jaringobi.domain.user.AppUser;
 import jaringobi.domain.user.User;
 import jaringobi.exception.budget.InvalidBudgetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
@@ -68,7 +70,7 @@ public class Budget extends BaseTimeEntity {
         }
         this.categoryBudgets = categoryBudgets.stream()
                 .map(categoryBudget -> CategoryBudget.withBudget(this, categoryBudget))
-                .toList();
+                .collect(Collectors.toList());
     }
 
     public void setUser(User user) {
@@ -91,5 +93,9 @@ public class Budget extends BaseTimeEntity {
 
     public List<CategoryBudget> getCategoryBudgets() {
         return categoryBudgets;
+    }
+
+    public boolean isOwner(AppUser appUser) {
+        return this.user.isSame(appUser);
     }
 }
