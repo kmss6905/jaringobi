@@ -10,6 +10,8 @@ import static org.mockito.Mockito.when;
 import jaringobi.domain.budget.Budget;
 import jaringobi.domain.budget.BudgetRepository;
 import jaringobi.domain.budget.BudgetYearMonth;
+import jaringobi.domain.budget.CategoryBudget;
+import jaringobi.domain.budget.Money;
 import jaringobi.domain.user.AppUser;
 import jaringobi.domain.user.User;
 import jaringobi.domain.user.UserRepository;
@@ -17,6 +19,7 @@ import jaringobi.dto.request.AddBudgetRequest;
 import jaringobi.dto.request.BudgetByCategoryRequest;
 import jaringobi.dto.response.AddBudgetResponse;
 import jaringobi.exception.auth.NoPermissionException;
+import jaringobi.exception.budget.BudgetCategoryDuplicatedException;
 import jaringobi.exception.budget.BudgetNotFoundException;
 import jaringobi.exception.user.UserNotFoundException;
 import java.util.List;
@@ -61,7 +64,7 @@ public class BudgetServiceTest {
             .build();
 
     @Test
-    @DisplayName("카테고리 서비스 테스트 - 성공")
+    @DisplayName("예산 추가 - 성공")
     void budgetServiceTest() {
         AppUser appUser = new AppUser(1L);
 
@@ -81,8 +84,9 @@ public class BudgetServiceTest {
     }
 
     @Test
-    @DisplayName("사용자를 찾을 수 없을 경우 예외 던진다. - 실패")
+    @DisplayName("예산 추가 시 사용자를 찾을 수 없을 경우 예외 던진다. - 실패")
     void throwExceptionWhenNotFoundUser() {
+        // Given
         AppUser appUser = new AppUser(1L);
         var addBudgetRequest = AddBudgetRequest.builder()
                 .budgetByCategories(
@@ -106,6 +110,7 @@ public class BudgetServiceTest {
     @Test
     @DisplayName("예산 삭제 - 성공")
     void successDelete() {
+        // Given
         when(budgetRepository.findById(1L)).thenReturn(Optional.of(savedBudget));
         AppUser appUser = new AppUser(1L);
 
@@ -119,6 +124,7 @@ public class BudgetServiceTest {
     @Test
     @DisplayName("삭제할 예산이 없는 경우 예외 던진다. - 실패")
     void throwExceptionNotExistedBudget() {
+        // Given
         when(budgetRepository.findById(1L)).thenReturn(Optional.empty());
         AppUser appUser = new AppUser(1L);
 
@@ -133,6 +139,7 @@ public class BudgetServiceTest {
     @Test
     @DisplayName("삭제할 권한이 없는 경우 예외 던진다. - 실패")
     void throwExceptionNoPermission() {
+        // Given
         when(budgetRepository.findById(1L)).thenReturn(Optional.of(savedBudget));
         AppUser appUser = new AppUser(2L);
 
@@ -142,5 +149,81 @@ public class BudgetServiceTest {
 
         // Verify
         verify(budgetRepository, times(0)).delete(savedBudget);
+    }
+
+    @Test
+    @DisplayName("예산 카테고리 추가 성공")
+    void successAddBudgetCategory() {
+        // Given
+        when(budgetRepository.findById(1L)).thenReturn(Optional.of(savedBudget));
+        AppUser appUser = new AppUser(1L);
+
+        BudgetByCategoryRequest categoryRequest = BudgetByCategoryRequest.builder()
+                .categoryId(2L)
+                .money(2000)
+                .build();
+
+        // When
+        budgetService.addBudgetCategory(appUser, 1, categoryRequest);
+
+        // Then
+        assertThat(savedBudget.getCategoryBudgets()).hasSize(2);
+        assertThat(savedBudget.getCategoryBudgets()).extracting("categoryId").containsExactly(1L, 2L);
+
+        assertThat(savedBudget.getCategoryBudgets())
+                .extracting(CategoryBudget::getAmount)
+                .extracting(Money::getAmount)
+                .containsExactly(1000, 2000);
+    }
+
+    @Test
+    @DisplayName("카테고리 예산 추가 시 Budget 예산이 없는 경우 예외 던진다. - 실패")
+    void throwExceptionNoBudget() {
+        // Given
+        when(budgetRepository.findById(1L)).thenReturn(Optional.empty());
+        AppUser appUser = new AppUser(1L);
+
+        BudgetByCategoryRequest categoryRequest = BudgetByCategoryRequest.builder()
+                .categoryId(2L)
+                .money(2000)
+                .build();
+
+        // When,  Then
+        assertThatThrownBy(() -> budgetService.addBudgetCategory(appUser, 1, categoryRequest))
+                .isInstanceOf(BudgetNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("카테고리 예산 추가 시 이미 존재하는 카테고리 인 경우 예외 던진다. - 실패")
+    void throwExceptionDuplicatedCategory() {
+        // Given
+        when(budgetRepository.findById(1L)).thenReturn(Optional.of(savedBudget));
+        AppUser appUser = new AppUser(1L);
+
+        BudgetByCategoryRequest categoryRequest = BudgetByCategoryRequest.builder()
+                .categoryId(1L)
+                .money(2000)
+                .build();
+
+        // When,  Then
+        assertThatThrownBy(() -> budgetService.addBudgetCategory(appUser, 1, categoryRequest))
+                .isInstanceOf(BudgetCategoryDuplicatedException.class);
+    }
+
+    @Test
+    @DisplayName("카테고리 예산 추가 시 권한이 없는 경우 예외 던진다. - 실패")
+    void throwExceptionWhenAddBudgetCategoryNoPermission() {
+        // Given
+        when(budgetRepository.findById(1L)).thenReturn(Optional.of(savedBudget));
+        AppUser appUser = new AppUser(2L);
+
+        BudgetByCategoryRequest categoryRequest = BudgetByCategoryRequest.builder()
+                .categoryId(1L)
+                .money(2000)
+                .build();
+
+        // When,  Then
+        assertThatThrownBy(() -> budgetService.addBudgetCategory(appUser, 1, categoryRequest))
+                .isInstanceOf(NoPermissionException.class);
     }
 }
