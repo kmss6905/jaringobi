@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import jaringobi.domain.user.AppUser;
 import jaringobi.domain.user.User;
 import jaringobi.exception.budget.InvalidBudgetException;
 import jaringobi.exception.budget.LowBudgetException;
@@ -141,5 +142,31 @@ class BudgetTest {
         // When, Then
         assertThatThrownBy(() -> budget.setCategoryBudgets(categoryBudgets))
                 .isInstanceOf(InvalidBudgetException.class);
+    }
+
+    @Test
+    @DisplayName("예산 소유자 여부 확인 isOwner")
+    void isOwnerTest() {
+        List<CategoryBudget> categoryBudgets = List.of(
+                CategoryBudget.builder().amount(new Money(1000)).categoryId(1L).build(),
+                CategoryBudget.builder().amount(new Money(2000)).categoryId(2L).build()
+        );
+
+        Budget budget = Budget.builder()
+                .yearMonth(BudgetYearMonth.fromString("2023-10"))
+                .user(User.builder()
+                        .id(1L)
+                        .username("username")
+                        .password("password")
+                        .build())
+                .categoryBudgets(categoryBudgets)
+                .build();
+
+        AppUser appUser = new AppUser(1L);
+        AppUser appUser2 = new AppUser(2L);
+
+        // When, Then
+        assertThat(budget.isOwner(appUser)).isTrue();
+        assertThat(budget.isOwner(appUser2)).isFalse();
     }
 }
