@@ -22,4 +22,15 @@ public class BudgetAPI {
                 .log().all().extract();
     }
 
+    public static ExtractableResponse<Response> 예산삭제요청(long id, String token) {
+        return RestAssured.given().log().all()
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .when()
+                .header(AUTHORIZATION, BEARER + token)
+                .delete("/api/v1/budget/{id}", id)
+                .andReturn()
+                .then()
+                .log().all().extract();
+    }
+
 }
