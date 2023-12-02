@@ -393,6 +393,74 @@ public class BudgetAPITest extends APITest {
         }
     }
 
+    @Nested
+    @DisplayName("[예산 카테고리 삭제] /api/v1/budget/{id}/categories/{categoryId}")
+    class BudgetCategoryDelete {
+
+        @Test
+        @DisplayName("성공 200")
+        void success() {
+            // Given
+            saveBudget();
+
+            // When
+            var response = BudgetAPI.예산카테고리삭제요청(1L, 1L, accessToken);
+
+            // Then
+            assertThat(response.response().statusCode()).isEqualTo(204);
+
+            // Then
+            var response2 = BudgetAPI.예산조회요청(1L, accessToken);
+            var jsonPath = response2.jsonPath();
+
+            assertThat(jsonPath.getString("code")).isEqualTo("200");
+            assertThat(jsonPath.getString("data.month")).isEqualTo("2023-10-01");
+            assertThat(jsonPath.getString("data.createdAt")).isNotEmpty();
+            assertThat(jsonPath.getString("data.updatedAt")).isNotEmpty();
+
+            List<BudgetByCategoryResponse> budgetByCategoryResponses = jsonPath.getList("data.budgetByCategories",
+                    BudgetByCategoryResponse.class);
+
+            assertAll(
+                    () -> assertThat(budgetByCategoryResponses).hasSize(1),
+                    () -> assertThat(budgetByCategoryResponses).extracting("categoryId").containsExactly(2L),
+                    () -> assertThat(budgetByCategoryResponses).extracting("money").containsExactly(9000)
+            );
+        }
+
+        @Test
+        @DisplayName("실패 404 - 존재하지 않는 카테고리 예산 삭제")
+        void failNotExistedBudgetCategory() {
+            // Given
+            saveBudget();
+
+            // When
+            var response = BudgetAPI.예산카테고리삭제요청(1L, 4L, accessToken);
+            var jsonPath = response.jsonPath();
+
+            // Then
+            assertThat(response.response().statusCode()).isEqualTo(404);
+            assertThat(jsonPath.getString("code")).isEqualTo("B005");
+            assertThat(jsonPath.getString("message")).isEqualTo("존재하지 않는 예산 카테고리 항목입니다.");
+        }
+
+        @Test
+        @DisplayName("실패 404 - 존재하지 않는 예산의 카테고리 예산 수정")
+        void failNotExistedBudget() {
+            // Given
+            saveBudget();
+
+            // When
+            var response = BudgetAPI.예산카테고리삭제요청(2L, 1L, accessToken);
+            var jsonPath = response.jsonPath();
+
+            // Then
+            assertThat(response.response().statusCode()).isEqualTo(404);
+            assertThat(jsonPath.getString("code")).isEqualTo("B003");
+            assertThat(jsonPath.getString("message")).isEqualTo("존재하지 않는 예산입니다.");
+        }
+    }
+
     private void saveBudget() {
         String body = """
                 {

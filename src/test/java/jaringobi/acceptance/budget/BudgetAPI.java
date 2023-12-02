@@ -67,4 +67,15 @@ public class BudgetAPI {
                 .then()
                 .log().all().extract();
     }
+
+    public static ExtractableResponse<Response> 예산카테고리삭제요청(long id, long categoryId, String token) {
+        return RestAssured.given().log().all()
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .when()
+                .header(AUTHORIZATION, BEARER + token)
+                .delete("/api/v1/budget/{id}/categories/{categoryId}", id, categoryId)
+                .andReturn()
+                .then()
+                .log().all().extract();
+    }
 }
