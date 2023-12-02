@@ -74,4 +74,14 @@ public class BudgetController {
         budgetService.modifyBudgetCategory(appUser, id, categoryId, modifyBudgetCategory);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
+
+    @DeleteMapping("/{id}/categories/{categoryId}")
+    public ResponseEntity<Void> deleteBudgetCategory(
+            @AuthenticationPrincipal AppUser appUser,
+            @PathVariable long id,
+            @PathVariable long categoryId
+    ) {
+        budgetService.removeBudgetCategory(appUser, id, categoryId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
 }
