@@ -3,6 +3,7 @@ package jaringobi.service;
 import jaringobi.domain.budget.Budget;
 import jaringobi.domain.budget.BudgetRepository;
 import jaringobi.domain.budget.CategoryBudget;
+import jaringobi.domain.budget.CategoryBudgetRepository;
 import jaringobi.domain.user.AppUser;
 import jaringobi.domain.user.User;
 import jaringobi.domain.user.UserRepository;
@@ -25,6 +26,7 @@ public class BudgetService {
 
     private final BudgetRepository budgetRepository;
     private final UserRepository userRepository;
+    private final CategoryBudgetRepository categoryBudgetRepository;
 
     @Transactional
     public AddBudgetResponse addBudget(AppUser appUser, AddBudgetRequest addBudgetRequest) {
@@ -60,6 +62,12 @@ public class BudgetService {
         Budget budget = findBudgetOwnerOf(appUser, budgetId);
         CategoryBudget budgetCategory = modifyBudgetCategory.toCategoryBudgetWithCategory(budgetCategoryId);
         budget.modifyBudgetCategory(budgetCategory);
+    }
+
+    @Transactional
+    public void removeBudgetCategory(AppUser appUser, long budgetId, long budgetCategoryId) {
+        Budget budget = findBudgetOwnerOf(appUser, budgetId);
+        budget.deleteBudgetCategoryByCid(budgetCategoryId);
     }
 
     private Budget findBudgetOwnerOf(AppUser appUser, long budgetId) {

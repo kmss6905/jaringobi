@@ -42,7 +42,7 @@ public class Budget extends BaseTimeEntity {
     @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_budget_to_user"))
     private User user;
 
-    @OneToMany(mappedBy = "budget", cascade = CascadeType.PERSIST, orphanRemoval = true)
+    @OneToMany(mappedBy = "budget", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CategoryBudget> categoryBudgets = new ArrayList<>();
 
     @Builder
@@ -115,17 +115,19 @@ public class Budget extends BaseTimeEntity {
     }
 
     public void modifyBudgetCategory(CategoryBudget modifyCategoryBudget) {
-        CategoryBudget categoryBudget = findBudgetCategory(modifyCategoryBudget);
-        if (Objects.isNull(categoryBudget)) {
-            throw new BudgetCategoryNotFoundException();
-        }
+        CategoryBudget categoryBudget = findBudgetCategory(modifyCategoryBudget.getCategoryId());
         categoryBudget.modify(modifyCategoryBudget);
     }
 
-    private CategoryBudget findBudgetCategory(CategoryBudget modifyBudgetCategory) {
+    public void deleteBudgetCategoryByCid(long categoryId) {
+        CategoryBudget budgetCategory = findBudgetCategory(categoryId);
+        categoryBudgets.remove(budgetCategory);
+    }
+
+    private CategoryBudget findBudgetCategory(long categoryId) {
         return categoryBudgets.stream()
-                .filter(it -> it.getCategoryId().equals(modifyBudgetCategory.getCategoryId()))
+                .filter(it -> it.getCategoryId().equals(categoryId))
                 .findFirst()
-                .orElse(null);
+                .orElseThrow(BudgetCategoryNotFoundException::new);
     }
 }
