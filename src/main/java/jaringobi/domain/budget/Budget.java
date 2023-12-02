@@ -16,6 +16,7 @@ import jaringobi.domain.BaseTimeEntity;
 import jaringobi.domain.user.AppUser;
 import jaringobi.domain.user.User;
 import jaringobi.exception.budget.BudgetCategoryDuplicatedException;
+import jaringobi.exception.budget.BudgetCategoryNotFoundException;
 import jaringobi.exception.budget.InvalidBudgetException;
 import java.util.ArrayList;
 import java.util.List;
@@ -111,5 +112,20 @@ public class Budget extends BaseTimeEntity {
         if (existed) {
             throw new BudgetCategoryDuplicatedException();
         }
+    }
+
+    public void modifyBudgetCategory(CategoryBudget modifyCategoryBudget) {
+        CategoryBudget categoryBudget = findBudgetCategory(modifyCategoryBudget);
+        if (Objects.isNull(categoryBudget)) {
+            throw new BudgetCategoryNotFoundException();
+        }
+        categoryBudget.modify(modifyCategoryBudget);
+    }
+
+    private CategoryBudget findBudgetCategory(CategoryBudget modifyBudgetCategory) {
+        return categoryBudgets.stream()
+                .filter(it -> it.getCategoryId().equals(modifyBudgetCategory.getCategoryId()))
+                .findFirst()
+                .orElse(null);
     }
 }

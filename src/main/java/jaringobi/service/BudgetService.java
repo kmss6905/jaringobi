@@ -8,6 +8,7 @@ import jaringobi.domain.user.User;
 import jaringobi.domain.user.UserRepository;
 import jaringobi.dto.request.AddBudgetRequest;
 import jaringobi.dto.request.BudgetByCategoryRequest;
+import jaringobi.dto.request.ModifyBudgetCategory;
 import jaringobi.dto.response.AddBudgetResponse;
 import jaringobi.dto.response.BudgetResponse;
 import jaringobi.exception.auth.NoPermissionException;
@@ -52,6 +53,13 @@ public class BudgetService {
     public void addBudgetCategory(AppUser appUser, long budgetId, BudgetByCategoryRequest budgetByCategoryRequest) {
         Budget budget = findBudgetOwnerOf(appUser, budgetId);
         budget.addBudgetCategory(budgetByCategoryRequest.toCategoryBudget());
+    }
+
+    @Transactional
+    public void modifyBudgetCategory(AppUser appUser, long budgetId, long budgetCategoryId, ModifyBudgetCategory modifyBudgetCategory) {
+        Budget budget = findBudgetOwnerOf(appUser, budgetId);
+        CategoryBudget budgetCategory = modifyBudgetCategory.toCategoryBudgetWithCategory(budgetCategoryId);
+        budget.modifyBudgetCategory(budgetCategory);
     }
 
     private Budget findBudgetOwnerOf(AppUser appUser, long budgetId) {

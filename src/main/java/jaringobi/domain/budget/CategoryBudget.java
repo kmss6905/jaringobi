@@ -51,6 +51,10 @@ public class CategoryBudget extends BaseTimeEntity {
         }
     }
 
+    public void modify(final CategoryBudget categoryBudget) {
+        this.amount = new Money(categoryBudget.getAmount().getAmount());
+    }
+
     public static CategoryBudget withBudget(Budget budget, CategoryBudget categoryBudget) {
         return CategoryBudget.builder()
                 .categoryId(categoryBudget.categoryId)
