@@ -288,4 +288,42 @@ public class BudgetServiceTest {
         // Verify
         verify(budgetRepository, times(1)).findById(1L);
     }
+
+    @Test
+    @DisplayName("예산 카테고리 삭제 성공")
+    void successDeleteBudgetCategory() {
+        // Given
+        when(budgetRepository.findById(1L)).thenReturn(Optional.of(savedBudget));
+        AppUser appUser = new AppUser(1L);
+
+        // When
+        budgetService.removeBudgetCategory(appUser, 1, 1);
+
+        // Then
+        assertThat(savedBudget.getCategoryBudgets()).hasSize(0);
+    }
+
+    @Test
+    @DisplayName("예산 카테고리 삭제 시 예산이 존재하지 않으면 예외 던진다 - 실패")
+    void throwExceptionNoExistedBudgetWhenDeletingBudgetCategory() {
+        // Given
+        when(budgetRepository.findById(1L)).thenReturn(Optional.empty());
+        AppUser appUser = new AppUser(1L);
+
+        // When, Then
+        assertThatThrownBy(() -> budgetService.removeBudgetCategory(appUser, 1, 1))
+                .isInstanceOf(BudgetNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("예산 카테고리 삭제 시 삭제하려는 예산 카테고리가 존재하지 않으면 예외 던진다 - 실패")
+    void throwExceptionNoExistedBudgetCategoryWhenDeletingBudgetCategory() {
+        // Given
+        when(budgetRepository.findById(1L)).thenReturn(Optional.of(savedBudget));
+        AppUser appUser = new AppUser(1L);
+
+        // When, Then
+        assertThatThrownBy(() -> budgetService.removeBudgetCategory(appUser, 1, 4))
+                .isInstanceOf(BudgetCategoryNotFoundException.class);
+    }
 }
