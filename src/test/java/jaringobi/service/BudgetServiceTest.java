@@ -17,9 +17,11 @@ import jaringobi.domain.user.User;
 import jaringobi.domain.user.UserRepository;
 import jaringobi.dto.request.AddBudgetRequest;
 import jaringobi.dto.request.BudgetByCategoryRequest;
+import jaringobi.dto.request.ModifyBudgetCategory;
 import jaringobi.dto.response.AddBudgetResponse;
 import jaringobi.exception.auth.NoPermissionException;
 import jaringobi.exception.budget.BudgetCategoryDuplicatedException;
+import jaringobi.exception.budget.BudgetCategoryNotFoundException;
 import jaringobi.exception.budget.BudgetNotFoundException;
 import jaringobi.exception.user.UserNotFoundException;
 import java.util.List;
@@ -225,5 +227,65 @@ public class BudgetServiceTest {
         // When,  Then
         assertThatThrownBy(() -> budgetService.addBudgetCategory(appUser, 1, categoryRequest))
                 .isInstanceOf(NoPermissionException.class);
+    }
+
+    @Test
+    @DisplayName("예산 카테고리 수정 성공")
+    void successModifyBudgetCategory() {
+        // Given
+        when(budgetRepository.findById(1L)).thenReturn(Optional.of(savedBudget));
+        AppUser appUser = new AppUser(1L);
+
+        ModifyBudgetCategory modifyBudgetCategory = ModifyBudgetCategory.builder()
+                .money(2000)
+                .build();
+
+        // When
+        budgetService.modifyBudgetCategory(appUser, 1, 1, modifyBudgetCategory);
+
+        // Then
+        assertThat(savedBudget.getCategoryBudgets()).extracting("categoryId").containsExactly(1L);
+        assertThat(savedBudget.getCategoryBudgets())
+                .extracting(CategoryBudget::getAmount)
+                .extracting(Money::getAmount)
+                .containsExactly(2000);
+    }
+
+    @Test
+    @DisplayName("카테고리 예산 수정 시 Budget 예산이 없는 경우 예외 던진다. - 실패")
+    void throwExceptionWhenModifyBudgetNotExisted() {
+        // Given
+        when(budgetRepository.findById(1L)).thenReturn(Optional.empty());
+        AppUser appUser = new AppUser(1L);
+
+        ModifyBudgetCategory modifyBudgetCategory = ModifyBudgetCategory.builder()
+                .money(2000)
+                .build();
+
+        // When
+        assertThatThrownBy(() -> budgetService.modifyBudgetCategory(appUser, 1, 1, modifyBudgetCategory))
+                .isInstanceOf(BudgetNotFoundException.class);
+
+        // Verify
+        verify(budgetRepository, times(1)).findById(1L);
+    }
+
+    @Test
+    @DisplayName("카테고리 예산 수정 시 수정하려는 BudgetCategory 가 없는 경우 예외 던진다. - 실패")
+    void throwExceptionWhenModifyCategoryBudgetNotExisted() {
+        // Given
+        when(budgetRepository.findById(1L)).thenReturn(Optional.of(savedBudget));
+        AppUser appUser = new AppUser(1L);
+
+        ModifyBudgetCategory modifyBudgetCategory = ModifyBudgetCategory.builder()
+                .money(2000)
+                .build();
+
+        // When
+        assertThatThrownBy(() -> budgetService.modifyBudgetCategory(appUser, 1, 2, modifyBudgetCategory))
+                .isInstanceOf(BudgetCategoryNotFoundException.class);
+
+        // Verify
+        verify(budgetRepository, times(1)).findById(1L);
     }
 }

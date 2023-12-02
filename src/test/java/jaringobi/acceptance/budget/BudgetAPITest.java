@@ -238,7 +238,7 @@ public class BudgetAPITest extends APITest {
     }
 
     @Nested
-    @DisplayName("[예산 카테고리 추가] /api/v1/budget/{id}/category")
+    @DisplayName("[예산 카테고리 추가] /api/v1/budget/{id}/categories")
     class BudgetCategoryAdd {
 
         @Test
@@ -303,6 +303,93 @@ public class BudgetAPITest extends APITest {
             assertThat(response.response().statusCode()).isEqualTo(409);
             assertThat(jsonPath.getString("code")).isEqualTo("B004");
             assertThat(jsonPath.getString("message")).isEqualTo("해당 카테고리로 예산 항목이 이미 존재합니다. 중복 카테고리 등록 불가");
+        }
+    }
+
+
+    @Nested
+    @DisplayName("[에산 카테고리 수정] /api/v1/budget/{id}/categories/{categoryId}")
+    class BudgetCategoryModify {
+
+        @Test
+        @DisplayName("성공 200")
+        void success() {
+            // Given
+            saveBudget();
+
+            String body = """
+                            {
+                                "money": 10000
+                            }
+                    """;
+
+            // When
+            var response = BudgetAPI.예산카테고리수정요청(body, 1L, 1L, accessToken);
+
+            // Then
+            assertThat(response.response().statusCode()).isEqualTo(204);
+
+            // Then
+            var response2 = BudgetAPI.예산조회요청(1L, accessToken);
+            var jsonPath = response2.jsonPath();
+
+            assertThat(jsonPath.getString("code")).isEqualTo("200");
+            assertThat(jsonPath.getString("data.month")).isEqualTo("2023-10-01");
+            assertThat(jsonPath.getString("data.createdAt")).isNotEmpty();
+            assertThat(jsonPath.getString("data.updatedAt")).isNotEmpty();
+
+            List<BudgetByCategoryResponse> budgetByCategoryResponses = jsonPath.getList("data.budgetByCategories",
+                    BudgetByCategoryResponse.class);
+
+            assertAll(
+                    () -> assertThat(budgetByCategoryResponses).hasSize(2),
+                    () -> assertThat(budgetByCategoryResponses).extracting("categoryId").containsExactly(1L, 2L),
+                    () -> assertThat(budgetByCategoryResponses).extracting("money").containsExactly(10000, 9000)
+            );
+        }
+
+        @Test
+        @DisplayName("실패 404 - 존재하지 않는 카테고리 예산 수정")
+        void failNotExistedBudgetCategory() {
+            // Given
+            saveBudget();
+
+            String body = """
+                            {
+                                "money": 10000
+                            }
+                    """;
+
+            // When
+            var response = BudgetAPI.예산카테고리수정요청(body, 1L, 4L, accessToken);
+            var jsonPath = response.jsonPath();
+
+            // Then
+            assertThat(response.response().statusCode()).isEqualTo(404);
+            assertThat(jsonPath.getString("code")).isEqualTo("B005");
+            assertThat(jsonPath.getString("message")).isEqualTo("존재하지 않는 예산 카테고리 항목입니다.");
+        }
+
+        @Test
+        @DisplayName("실패 404 - 존재하지 않는 예산의 카테고리 예산 수정")
+        void failNotExistedBudget() {
+            // Given
+            saveBudget();
+
+            String body = """
+                            {
+                                "money": 10000
+                            }
+                    """;
+
+            // When
+            var response = BudgetAPI.예산카테고리수정요청(body, 3L, 4L, accessToken);
+            var jsonPath = response.jsonPath();
+
+            // Then
+            assertThat(response.response().statusCode()).isEqualTo(404);
+            assertThat(jsonPath.getString("code")).isEqualTo("B003");
+            assertThat(jsonPath.getString("message")).isEqualTo("존재하지 않는 예산입니다.");
         }
     }
 

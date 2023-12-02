@@ -6,6 +6,7 @@ import jaringobi.common.response.ApiResponse;
 import jaringobi.domain.user.AppUser;
 import jaringobi.dto.request.AddBudgetRequest;
 import jaringobi.dto.request.BudgetByCategoryRequest;
+import jaringobi.dto.request.ModifyBudgetCategory;
 import jaringobi.dto.response.AddBudgetResponse;
 import jaringobi.dto.response.BudgetResponse;
 import jaringobi.service.BudgetService;
@@ -15,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -60,5 +62,16 @@ public class BudgetController {
     ) {
         budgetService.addBudgetCategory(appUser, id, budgetByCategoryRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @PatchMapping("/{id}/categories/{categoryId}")
+    public ResponseEntity<Void> addBudgetCategory(
+            @AuthenticationPrincipal AppUser appUser,
+            @PathVariable long id,
+            @PathVariable long categoryId,
+            @Valid @RequestBody ModifyBudgetCategory modifyBudgetCategory
+    ) {
+        budgetService.modifyBudgetCategory(appUser, id, categoryId, modifyBudgetCategory);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }
