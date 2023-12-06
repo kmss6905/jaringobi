@@ -44,4 +44,15 @@ public class ExpenseAPI {
                 .then()
                 .log().all().extract();
     }
+
+    public static ExtractableResponse<Response> 오늘지출안내조회(String token) {
+        return RestAssured.given().log().all()
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .when()
+                .header(AUTHORIZATION, BEARER + token)
+                .get("/api/v1/expenditures/today")
+                .andReturn()
+                .then()
+                .log().all().extract();
+    }
 }

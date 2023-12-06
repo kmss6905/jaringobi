@@ -8,6 +8,7 @@ import jaringobi.domain.user.User;
 import jaringobi.domain.user.UserRepository;
 import jaringobi.jwt.TokenProvider;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +53,7 @@ public class APITest {
     }
 
     private void saveUsersByIds(Long... ids) {
-        List<User> users = stream(ids).map(this::createUser).toList();
+        List<User> users = stream(ids).map(this::createUser).collect(Collectors.toList());
         userRepository.saveAll(users);
     }
 
