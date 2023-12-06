@@ -1,19 +1,27 @@
 package jaringobi.domain.expense;
 
 
+import static jaringobi.domain.budget.QBudget.budget;
+import static jaringobi.domain.budget.QCategoryBudget.categoryBudget;
+import static jaringobi.domain.category.QCategory.category;
 import static jaringobi.domain.expense.QExpense.expense;
 
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import jaringobi.controller.query.expense.response.TodayExpensePerCategory;
 import jaringobi.controller.search.CategoryExpenseSum;
+import jaringobi.domain.budget.CategoryBudget;
 import jaringobi.domain.budget.Money;
 import jaringobi.domain.user.AppUser;
 import jaringobi.dto.SearchSort;
 import jaringobi.dto.request.ExpenseSearchCondition;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -49,6 +57,42 @@ public class ExpenseQueryRepositoryImpl implements ExpenseQueryRepository {
                         betweenDate(condition.getStart(), condition.getEnd()))
                 .from(expense);
         return PageableExecutionUtils.getPage(expenses, pageable, totalCount::fetchOne);
+    }
+
+    @Override
+    public List<TodayExpensePerCategory> todayTotalExpense(AppUser appUser) {
+        LocalDate localDate = LocalDate.now();
+        LocalDateTime startOfDay = localDate.atStartOfDay();
+        LocalDateTime endOfDay = localDate.atTime(LocalTime.MAX);
+
+        return jpaQueryFactory.select(
+                        Projections.fields(TodayExpensePerCategory.class,
+                                category.id.as("categoryId"),
+                                expense.money.amount.sum().as("paidAmount")))
+                .from(expense)
+                .join(category).on(category.eq(expense.category))
+                .where(
+                        expense.expenseAt.between(startOfDay, endOfDay),
+                        expense.owner.id.eq(appUser.userId()))
+                .groupBy(category.id)
+                .fetch();
+    }
+
+    @Override
+    public List<CategoryBudget> getBudgetsPerCategory(AppUser appUser) {
+        LocalDate localDate = LocalDate.now();
+
+        return jpaQueryFactory.selectFrom(categoryBudget)
+                .join(budget).on(categoryBudget.budget.eq(budget))
+                .where(
+                        eqBudgetMonth(localDate),
+                        budget.user.id.eq(appUser.userId())
+                ).fetch();
+
+    }
+
+    private static BooleanExpression eqBudgetMonth(LocalDate localDate) {
+        return budget.yearMonth.month.eq(LocalDate.of(localDate.getYear(), localDate.getMonth(), 1));
     }
 
 
@@ -108,7 +152,7 @@ public class ExpenseQueryRepositoryImpl implements ExpenseQueryRepository {
         }
     }
 
-    private OrderSpecifier<?> findCriteria(ExpenseSearchCondition condition){
+    private OrderSpecifier<?> findCriteria(ExpenseSearchCondition condition) {
         if (condition.getSort() == SearchSort.AMOUNT) {
             return expense.money.amount.desc();
         }
